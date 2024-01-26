@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dhconnelly/rtreego"
 	"github.com/twpayne/go-geom/encoding/wkt"
 )
 
@@ -35,12 +36,15 @@ func ReadMileMarker() []MileMarker {
 		}
 
 		coord := ParseCoords(record[0])
+		point := rtreego.Point{coord.Lat, coord.Long}.ToRect(0.01)
 
 		t := MileMarker{
 			RoadType:    record[5],
 			Marker:      record[7],
 			Coordinates: coord,
+			Geom:        point,
 		}
+
 		mileMarkers = append(mileMarkers, t)
 	}
 	return mileMarkers

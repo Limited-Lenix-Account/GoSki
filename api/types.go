@@ -119,3 +119,40 @@ type TravelTime struct {
 		} `json:"attributes"`
 	} `json:"features"`
 }
+
+type SnowPlow struct {
+	Type     string `json:"type"`
+	Features []struct {
+		AvlLocation struct {
+			Vehicle struct {
+				ID      string `json:"id"`
+				ID2     string `json:"id2"`
+				Fleet   string `json:"fleet"`
+				Type    string `json:"type"`
+				SubType string `json:"sub_type"`
+			} `json:"vehicle"`
+			Position struct {
+				Latitude  float64 `json:"latitude"`
+				Longitude float64 `json:"longitude"`
+				Bearing   any     `json:"bearing"`
+				Speed     float64 `json:"speed"`
+				Odometer  any     `json:"odometer"`
+			} `json:"position"`
+			Confidence    any `json:"confidence"`
+			CurrentStatus struct {
+				State string `json:"state"`
+				Info  string `json:"info"`
+			} `json:"current_status"`
+			AdditionalInfo []struct {
+				Name  string `json:"name"`
+				Value any    `json:"value"`
+			} `json:"additional_info"`
+			Source struct {
+				Name                string  `json:"name"`
+				CollectionTimestamp float64 `json:"collection_timestamp"`
+			} `json:"source"`
+		} `json:"avl_location"`
+		RtdhMessageID string  `json:"rtdh_message_id"`
+		RtdhTimestamp float64 `json:"rtdh_timestamp"`
+	} `json:"features"`
+}

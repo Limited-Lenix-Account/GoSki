@@ -3,15 +3,14 @@ package main
 import (
 	"fmt"
 
-	"traffic.go/internal/scrape"
-	"traffic.go/util"
+	"traffic.go/internal/plow"
 )
 
-var MileMarkers []util.MileMarker
+// var MileMarkers []util.MileMarker
 
-func init() {
-	MileMarkers = util.ReadMileMarker()
-}
+// func init() {
+// 	MileMarkers = util.ReadMileMarker()
+// }
 
 func main() {
 
@@ -21,7 +20,8 @@ func main() {
 	// 	  show up in the alerts
 
 	fmt.Println("Starting TrafficAIO")
-	scrape.RunAndSend()
+	// scrape.RunAndSend()
 
-	// merge.GetRelivantTraffic()
+	plow.DeterminePlowPos()
+
 }
