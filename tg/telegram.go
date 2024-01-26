@@ -2,22 +2,15 @@ package tg
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
-	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"traffic.go/internal/alerts"
 	"traffic.go/internal/merge"
 	"traffic.go/internal/traffic"
 )
 
-const (
-	chatID = int64(1585424137)
-	botKey = "6582079213:AAE43uCNLr2pUWIgBB9zhYqlOQCbwFzpLEk"
-)
-
-func SendMessage(Total merge.GrandObject) {
+func FormatMessage(Total merge.GrandObject) string {
 
 	lList := AlertToStr(Total.LovelandPass.Alerts)
 	lStr := strings.Join(lList, "\n")
@@ -44,18 +37,7 @@ func SendMessage(Total merge.GrandObject) {
 
 	testString := strings.Join(finalMessage, "\n")
 
-	bot, err := tg.NewBotAPI(botKey)
-	if err != nil {
-		fmt.Printf("Error Creating Telegram Bot %s", err)
-	}
-
-	msg := tg.NewMessage(chatID, testString)
-	msg.ParseMode = tg.ModeMarkdownV2
-	// Send the message
-	_, err = bot.Send(msg)
-	if err != nil {
-		log.Panic(err)
-	}
+	return testString
 
 }
 
@@ -102,8 +84,8 @@ func TrafficToString(traff []traffic.UseableTraffic) []string {
 		str := fmt.Sprintf("*%s*\nTravel Time: %d Minutes\nLast Updated: _%s_\n", parsedName, v.TravelTime/60, v.UpdatedTime.In(location).Format("January 2, 2006, 03:04 PM"))
 		trafficList = append(trafficList, str)
 	}
-
-	timeStamp := fmt.Sprintf("\n\n_Last Update Req: %s_", time.Now().In(location).Format("January 2, 2006, 03:04:20 PM"))
+	// unix := strconv.Itoa(int(time.Now().Unix()))
+	timeStamp := fmt.Sprintf("\n\n_Last Update Req: %s_", time.Now().In(location).Format("January 2, 2006, 03:04:05 PM"))
 	trafficList = append(trafficList, timeStamp)
 
 	return trafficList
