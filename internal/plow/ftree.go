@@ -10,7 +10,6 @@ import (
 func DeterminePlowPos() {
 	plows := ParsePlows()
 	tree := MakeTree()
-
 	for _, v := range *plows {
 		if v.Active {
 			v.ClosestMile = FindCloseMarkerSingle(v, *tree)
