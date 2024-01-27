@@ -156,3 +156,20 @@ type SnowPlow struct {
 		RtdhTimestamp float64 `json:"rtdh_timestamp"`
 	} `json:"features"`
 }
+
+type AppSnowPlow []struct {
+	ID       string `json:"id"`
+	Statuses []struct {
+		Timestamp               int64   `json:"timestamp"`
+		RouteDesignator         string  `json:"routeDesignator"`
+		TimezoneID              string  `json:"timezoneId"`
+		Latitude                float64 `json:"latitude"`
+		Longitude               float64 `json:"longitude"`
+		TotalTruckCount         int     `json:"totalTruckCount"`
+		HeadingString           string  `json:"headingString"`
+		PlowIconName            string  `json:"plowIconName"`
+		NearbyPointsDescription string  `json:"nearbyPointsDescription"`
+		VehicleName             string  `json:"vehicleName"`
+		LinearReference         float64 `json:"linearReference"`
+	} `json:"statuses"`
+}

@@ -8,9 +8,17 @@ import (
 	"net/http"
 )
 
-func GetSnowPlow() (*SnowPlow, error) {
+func GetSnowPlowFromAPI(ID string) (*SnowPlow, error) {
+
+	var url string
+
+	if ID == "" {
+		url = "https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P"
+	} else {
+		url = fmt.Sprintf("https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P&id=%s", ID)
+	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P", nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,4 +63,35 @@ func GetSnowPlow() (*SnowPlow, error) {
 	// }
 
 	return &plowResp, nil
+}
+
+func GetSnowPlowFromApp() (*AppSnowPlow, error) {
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://cotg.carsprogram.org/avl_v2/api/plows", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Host", "cotg.carsprogram.org")
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("User-Agent", "CO%20Production/5.7.70 CFNetwork/1490.0.4 Darwin/23.2.0")
+	req.Header.Set("Connection", "close")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var PlowAppRes AppSnowPlow
+
+	err = json.Unmarshal(body, &PlowAppRes)
+	if err != nil {
+		fmt.Printf("Error Unmarshalling App PlowResponse: %s\n", err)
+	}
+	return &PlowAppRes, nil
 }
