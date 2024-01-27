@@ -7,38 +7,26 @@ import (
 	"traffic.go/tg"
 )
 
+const REFRESH_DELAY = 15
+
 func RunAndSend() {
 
 	bot := tg.StartBot()
 	var messageID int
 
-	var Total merge.GrandObject
-
-	Loveland, Vail, Berthoud := merge.GetValidAlerts()
-	traffic := merge.GetRelivantTraffic()
-
-	Total.LovelandPass = Loveland
-	Total.VailPass = Vail
-	Total.BerthodPass = Berthoud
-
-	Total.Traffic = traffic
+	Total := merge.Merge()
 	initBody := tg.FormatMessage(Total)
+
 	messageID = tg.SendMessage(bot, initBody)
-	time.Sleep(5 * time.Second)
+	time.Sleep(REFRESH_DELAY * time.Second)
 	for {
 		if messageID != 0 {
 
-			Loveland, Vail, Berthoud := merge.GetValidAlerts()
-			traffic := merge.GetRelivantTraffic()
-
-			Total.LovelandPass = Loveland
-			Total.VailPass = Vail
-			Total.BerthodPass = Berthoud
-
-			Total.Traffic = traffic
+			Total = merge.Merge()
 			body := tg.FormatMessage(Total)
+
 			tg.EditMessage(bot, body, messageID)
-			time.Sleep(5 * time.Second)
+			time.Sleep(REFRESH_DELAY * time.Second)
 		}
 
 	}
