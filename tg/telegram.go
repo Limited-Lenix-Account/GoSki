@@ -47,7 +47,7 @@ func AlertToStr(alr []alerts.UseableAlert) []string {
 	if len(alr) > 0 {
 		alrList = append(alrList, "*Alerts Found\\!* ⚠️\n")
 		for _, v := range alr {
-			alrLine := fmt.Sprintf("Route: _%s_ \nReason: %s\n", v.Route, v.Reason)
+			alrLine := fmt.Sprintf("Route: _%s_ \nReason: %s\n", RouteToString(v.Route), v.Reason)
 			alrList = append(alrList, alrLine)
 		}
 	} else {
@@ -89,4 +89,9 @@ func TrafficToString(traff []traffic.UseableTraffic) []string {
 	trafficList = append(trafficList, timeStamp)
 
 	return trafficList
+}
+
+func RouteToString(route string) string {
+	parsedRoute := strings.Replace(route, "-", "\\-", -1)
+	return parsedRoute
 }

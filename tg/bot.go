@@ -30,6 +30,7 @@ func SendMessage(bot *tg.BotAPI, finalMessage string) int {
 	// Send the message
 	sentMessage, err := bot.Send(msg)
 	if err != nil {
+		fmt.Println(finalMessage)
 		log.Panic(err)
 	}
 	return sentMessage.MessageID

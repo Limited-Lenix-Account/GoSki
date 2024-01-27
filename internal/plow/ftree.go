@@ -7,7 +7,7 @@ import (
 	"traffic.go/util"
 )
 
-func DeterminePlowPos() {
+func DeterminePlowPos() *[]UsePlow {
 
 	plows := ParsePlows()
 	tree := MakeTree()
@@ -22,6 +22,7 @@ func DeterminePlowPos() {
 	for _, v := range *plows {
 		fmt.Println(v.ID, v.ID2, v.ClosestMile)
 	}
+	return plows
 
 }
 
@@ -35,20 +36,6 @@ func MakeTree() *rtreego.Rtree {
 	}
 	return tree
 }
-
-// func FindCloseMarker(plows []UsePlow, tree rtreego.Rtree) {
-
-// 	for _, plow := range plows {
-// 		snowRect := rtreego.Point{plow.Position.Latitude, plow.Position.Longitude}
-
-// 		results := tree.NearestNeighbors(1, snowRect)
-// 		close := results[0].(*util.MileMarker)
-
-// 		fmt.Println(close)
-
-// 	}
-
-// }
 
 func FindCloseMarkerSingle(plow UsePlow, tree rtreego.Rtree) *util.MileMarker {
 
