@@ -15,12 +15,10 @@ func DeterminePlowPos() *[]UsePlow {
 		if (*plows)[i].Active {
 			(*plows)[i].ClosestMile = FindCloseMarkerSingle((*plows)[i], *tree)
 		}
-		// (*plows)[i].ClosestMile = FindCloseMarkerSingle((*plows)[i], *tree)
 
 	}
-
 	for _, v := range *plows {
-		fmt.Println(v.ID, v.ID2, v.ClosestMile)
+		fmt.Println(v.ID, v.ClosestMile)
 	}
 	return plows
 
