@@ -9,7 +9,7 @@ type SpatialObject struct {
 
 type MileMarker struct {
 	RoadType string
-	Marker   string
+	Marker   int
 	Route    string
 
 	Coordinates Coordinates

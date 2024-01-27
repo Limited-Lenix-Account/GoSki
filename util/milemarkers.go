@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/dhconnelly/rtreego"
 	"github.com/twpayne/go-geom/encoding/wkt"
@@ -38,9 +39,11 @@ func ReadMileMarker() []MileMarker {
 		coord := ParseCoords(record[0])
 		point := rtreego.Point{coord.Lat, coord.Long}.ToRect(0.01)
 
+		marker, _ := strconv.Atoi(record[7])
+
 		t := MileMarker{
-			RoadType:    record[5],
-			Marker:      record[7],
+			Route:       record[5],
+			Marker:      marker,
 			Coordinates: coord,
 			Geom:        point,
 		}
