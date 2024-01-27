@@ -8,15 +8,19 @@ import (
 )
 
 func DeterminePlowPos() {
+
 	plows := ParsePlows()
 	tree := MakeTree()
-	for _, v := range *plows {
-		if v.Active {
-			v.ClosestMile = FindCloseMarkerSingle(v, *tree)
-
-			fmt.Println(v.ID, v.ClosestMile.RoadType, v.ClosestMile.Marker)
-
+	for i := range *plows {
+		if (*plows)[i].Active {
+			(*plows)[i].ClosestMile = FindCloseMarkerSingle((*plows)[i], *tree)
 		}
+		// (*plows)[i].ClosestMile = FindCloseMarkerSingle((*plows)[i], *tree)
+
+	}
+
+	for _, v := range *plows {
+		fmt.Println(v.ID, v.ID2, v.ClosestMile)
 	}
 
 }
@@ -32,19 +36,19 @@ func MakeTree() *rtreego.Rtree {
 	return tree
 }
 
-func FindCloseMarker(plows []UsePlow, tree rtreego.Rtree) {
+// func FindCloseMarker(plows []UsePlow, tree rtreego.Rtree) {
 
-	for _, plow := range plows {
-		snowRect := rtreego.Point{plow.Position.Latitude, plow.Position.Longitude}
+// 	for _, plow := range plows {
+// 		snowRect := rtreego.Point{plow.Position.Latitude, plow.Position.Longitude}
 
-		results := tree.NearestNeighbors(1, snowRect)
-		close := results[0].(*util.MileMarker)
+// 		results := tree.NearestNeighbors(1, snowRect)
+// 		close := results[0].(*util.MileMarker)
 
-		fmt.Println(close)
+// 		fmt.Println(close)
 
-	}
+// 	}
 
-}
+// }
 
 func FindCloseMarkerSingle(plow UsePlow, tree rtreego.Rtree) *util.MileMarker {
 
@@ -53,6 +57,5 @@ func FindCloseMarkerSingle(plow UsePlow, tree rtreego.Rtree) *util.MileMarker {
 	results := tree.NearestNeighbors(1, snowRect)
 	close := results[0].(*util.MileMarker)
 	return close
-	// fmt.Println(close)
 
 }
