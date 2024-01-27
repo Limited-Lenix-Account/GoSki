@@ -7,6 +7,7 @@ import (
 
 	"traffic.go/internal/alerts"
 	"traffic.go/internal/merge"
+	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
 )
 
@@ -14,22 +15,28 @@ func FormatMessage(Total merge.GrandObject) string {
 
 	lList := AlertToStr(Total.LovelandPass.Alerts)
 	lStr := strings.Join(lList, "\n")
+	lPlow := SnowPlowStr(Total.LovelandPass.Plows)
 
 	vList := AlertToStr(Total.VailPass.Alerts)
 	vStr := strings.Join(vList, "\n")
+	vPlow := SnowPlowStr(Total.VailPass.Plows)
 
 	bList := AlertToStr(Total.BerthodPass.Alerts)
 	bStr := strings.Join(bList, "\n")
+	bPlow := SnowPlowStr(Total.BerthodPass.Plows)
 
 	travelList := TrafficToString(*Total.Traffic)
 	travelString := strings.Join(travelList, "\n")
 
 	finalMessage := []string{
 		PassOpen(Total.LovelandPass.Name, Total.LovelandPass.Open),
+		lPlow,
 		lStr,
 		PassOpen(Total.VailPass.Name, Total.VailPass.Open),
+		vPlow,
 		vStr,
 		PassOpen(Total.BerthodPass.Name, Total.BerthodPass.Open),
+		bPlow,
 		bStr,
 		"\n*__Some Common Travel Times__*\n",
 		travelString,
@@ -56,21 +63,19 @@ func AlertToStr(alr []alerts.UseableAlert) []string {
 	return alrList
 }
 
-func PassOpen(name string, open int) string {
+func PassOpen(name string, open bool) string {
 	var nameStr string
 	switch open {
-	case 0:
-		str := fmt.Sprintf("⛔️ *__%s Closed__* ⛔️\n", name)
+	case false:
+		str := fmt.Sprintf("⛔️ *__%s Closed__* ⛔️", name)
 		nameStr = str
-	case 1:
-		str := fmt.Sprintf("✅ *__%s Open__* ✅\n", name)
+	case true:
+		str := fmt.Sprintf("✅ *__%s Open__* ✅", name)
 		nameStr = str
 	}
 	return nameStr
 }
 
-// Work on all this shit again lmaooooo
-// Format Traffic List to output to string in tg
 func TrafficToString(traff []traffic.UseableTraffic) []string {
 
 	var trafficList []string
@@ -94,4 +99,9 @@ func TrafficToString(traff []traffic.UseableTraffic) []string {
 func RouteToString(route string) string {
 	parsedRoute := strings.Replace(route, "-", "\\-", -1)
 	return parsedRoute
+}
+
+func SnowPlowStr(snow []plow.UsePlow) string {
+	snowStr := fmt.Sprintf("_Currently %d Snow Plow\\(s\\) Out_\n", len(snow))
+	return snowStr
 }
