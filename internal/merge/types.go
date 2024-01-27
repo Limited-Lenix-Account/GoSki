@@ -2,6 +2,7 @@ package merge
 
 import (
 	"traffic.go/internal/alerts"
+	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
 )
 
@@ -14,8 +15,9 @@ type GrandObject struct {
 }
 
 type PassStatus struct {
-	Name string
-	Open int
+	Name  string
+	Open  bool
+	Plows []plow.UsePlow
 
 	Alerts []alerts.UseableAlert
 }

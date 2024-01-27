@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"traffic.go/internal/alerts"
+	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
 )
 
@@ -23,60 +24,153 @@ const (
 
 var VALID_COID = []string{
 	"OpenTMS-TravelTime7685712394",
-	// "OpenTMS-TravelTime554935",
 	"OpenTMS-TravelTime7685734533",
 	"OpenTMS-TravelTime548989",
 }
 
-func GetValidAlerts() (*PassStatus, *PassStatus, *PassStatus) {
+func Merge() GrandObject {
 
-	var LovelandPass PassStatus
-	var VailPass PassStatus
-	var BerthoudPass PassStatus
+	var Total GrandObject
+
+	var Loveland PassStatus
+	var Vail PassStatus
+	var Berthoud PassStatus
+
+	Loveland.Name = "Loveland Pass"
+	Vail.Name = "Vail Pass"
+	Berthoud.Name = "Berthoud Pass"
+
+	//Get Valid Alerts
+	LovelandAlerts, VailAlerts, BerthodAlerts := GetValidAlerts()
+	Loveland.Alerts, Vail.Alerts, Berthoud.Alerts = *LovelandAlerts, *VailAlerts, *BerthodAlerts
+
+	//Check for Road Closures (These two can be consolidated because they make use of the same request)
+	LovelandClosure, VailClosure, BerthoudClosure := GetClosures()
+	Loveland.Open, Vail.Open, Berthoud.Open = LovelandClosure, VailClosure, BerthoudClosure
+
+	LovelandPlow, VailPlow, BerthoudPlow := GetSnowPlows()
+	Loveland.Plows, Vail.Plows, Berthoud.Plows = *LovelandPlow, *VailPlow, *BerthoudPlow
+
+	//Get Traffic
+	traffic := GetRelivantTraffic()
+
+	//Build Objects
+	Total.LovelandPass = &Loveland
+	Total.VailPass = &Vail
+	Total.BerthodPass = &Berthoud
+
+	Total.Traffic = traffic
+
+	fmt.Println(Vail.Plows)
+
+	return Total
+
+}
+
+func GetValidAlerts() (*[]alerts.UseableAlert, *[]alerts.UseableAlert, *[]alerts.UseableAlert) {
+
+	var LovelandAlerts []alerts.UseableAlert
+	var VailAlerts []alerts.UseableAlert
+	var BerthoudAlerts []alerts.UseableAlert
 
 	alr := alerts.ParseAlerts()
-	LovelandPass.Name = "Loveland Pass"
-	VailPass.Name = "Vail Pass"
-	BerthoudPass.Name = "Berthoud Pass"
 
 	for _, v := range *alr {
 		if v.Route == "US 6" {
 			if v.StartMile > LOVELAND_PASS_BEGIN && v.EndMile < LOVELAND_PASS_END {
-				LovelandPass.Alerts = append(LovelandPass.Alerts, v)
-			}
-
-			if !(v.Reason == "Road Closed") {
-				LovelandPass.Open = 1
-			} else {
-				LovelandPass.Open = 0
+				LovelandAlerts = append(LovelandAlerts, v)
 			}
 
 		} else if v.Route == "I-70" {
 			if v.StartMile > VAIL_PASS_BEGIN && v.EndMile < VAIL_PASS_END {
-				VailPass.Alerts = append(VailPass.Alerts, v)
-			}
-			if !(v.Reason == "Road Closed") {
-				VailPass.Open = 1
-			} else {
-				VailPass.Open = 0
+				VailAlerts = append(VailAlerts, v)
 			}
 
 		} else if v.Route == "US 40" {
 			if v.StartMile > BERTHOUD_PASS_BEGIN && v.EndMile < BERTHOUD_PASS_END {
 
 				fmt.Println(v.Reason)
-				BerthoudPass.Alerts = append(BerthoudPass.Alerts, v)
+				BerthoudAlerts = append(BerthoudAlerts, v)
 			}
-
-			if !(v.Reason == "Road Closed") {
-				BerthoudPass.Open = 1
-			} else {
-				BerthoudPass.Open = 0
-			}
-
 		}
 	}
-	return &LovelandPass, &VailPass, &BerthoudPass
+	return &LovelandAlerts, &VailAlerts, &BerthoudAlerts
+}
+
+func GetClosures() (bool, bool, bool) {
+
+	var Loveland, Vail, Berthoud bool
+
+	alr := alerts.ParseAlerts()
+
+	for _, v := range *alr {
+		// fmt.Println(v)
+		if v.Route == "US 6" {
+			if v.StartMile > LOVELAND_PASS_BEGIN && v.EndMile < LOVELAND_PASS_END {
+				if v.Reason == "Road Closed" {
+					Loveland = false
+				} else {
+					Loveland = true
+				}
+			} else {
+				Loveland = true
+			}
+
+		} else if v.Route == "I-70" {
+			if v.StartMile > VAIL_PASS_BEGIN && v.EndMile < VAIL_PASS_END {
+				if v.Reason == "Road Closed" {
+					Vail = false
+				} else {
+					Vail = true
+				}
+			} else {
+				Vail = true
+			}
+		} else if v.Route == "US 40" {
+			if v.StartMile > BERTHOUD_PASS_BEGIN && v.EndMile < BERTHOUD_PASS_END {
+				if v.Reason == "Road Closed" {
+					Berthoud = false
+				} else {
+					Berthoud = true
+				}
+			} else {
+				Berthoud = true
+			}
+		}
+
+	}
+
+	// fmt.Printf("Loveland %t, Vail %t, Berthoud %t\n", Loveland, Vail, Berthoud)
+	return Loveland, Vail, Berthoud
+
+}
+
+func GetSnowPlows() (*[]plow.UsePlow, *[]plow.UsePlow, *[]plow.UsePlow) {
+	var LovelandPlow, VailPlow, BerthoudPlow []plow.UsePlow
+	plows := plow.DeterminePlowPos()
+
+	for _, v := range *plows {
+		if v.ClosestMile != nil {
+
+			if v.ClosestMile.Route == "006F" {
+				if v.ClosestMile.Marker > LOVELAND_PASS_BEGIN && v.ClosestMile.Marker < LOVELAND_PASS_END {
+					LovelandPlow = append(LovelandPlow, v)
+				}
+
+			} else if v.ClosestMile.Route == "070A" {
+				fmt.Println(v.ID, v.ClosestMile.Marker)
+				if v.ClosestMile.Marker > VAIL_PASS_BEGIN && v.ClosestMile.Marker < VAIL_PASS_END {
+					VailPlow = append(VailPlow, v)
+				}
+
+			} else if v.ClosestMile.Route == "040A" {
+				if v.ClosestMile.Marker > BERTHOUD_PASS_BEGIN && v.ClosestMile.Marker < BERTHOUD_PASS_END {
+					BerthoudPlow = append(BerthoudPlow, v)
+				}
+			}
+		}
+	}
+	return &LovelandPlow, &VailPlow, &BerthoudPlow
 }
 
 func GetRelivantTraffic() *[]traffic.UseableTraffic {
@@ -92,8 +186,7 @@ func GetRelivantTraffic() *[]traffic.UseableTraffic {
 		}
 
 	}
-
-	PrintTraffic(&ValidTraffic)
+	// PrintTraffic(&ValidTraffic)
 	return &ValidTraffic
 }
 
