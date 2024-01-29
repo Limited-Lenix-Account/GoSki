@@ -14,6 +14,8 @@ const (
 
 func StartBot() *tg.BotAPI {
 
+	fmt.Println("Starting TG Bot...")
+
 	bot, err := tg.NewBotAPI(botKey)
 	if err != nil {
 		fmt.Printf("Error Creating Telegram Bot %s", err)
@@ -27,12 +29,15 @@ func SendMessage(bot *tg.BotAPI, finalMessage string) int {
 
 	msg := tg.NewMessage(chatID, finalMessage)
 	msg.ParseMode = tg.ModeMarkdownV2
+
 	// Send the message
 	sentMessage, err := bot.Send(msg)
 	if err != nil {
 		fmt.Println(finalMessage)
 		log.Panic(err)
 	}
+
+	fmt.Println("Message Sent!")
 	return sentMessage.MessageID
 
 }

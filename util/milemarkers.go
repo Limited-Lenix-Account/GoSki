@@ -11,6 +11,7 @@ import (
 )
 
 func ReadMileMarker() []MileMarker {
+	fmt.Println("Reading Mile Markers...")
 
 	// Opening the File
 	file, err := os.Open("data/MILE_MARKERS_GPS.csv")
@@ -69,4 +70,16 @@ func ParseCoords(raw string) Coordinates {
 	return t
 }
 
-// func ParseRoute(raw string)
+func MakeTree() *rtreego.Rtree {
+
+	markers := ReadMileMarker()
+	fmt.Println("Making Rtree...")
+
+	tree := rtreego.NewTree(2, 25, 50)
+
+	for i := range markers {
+		tree.Insert(&markers[i])
+	}
+
+	return tree
+}

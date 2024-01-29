@@ -14,8 +14,10 @@ func GetSnowPlowFromAPI(ID string) (*SnowPlow, error) {
 
 	if ID == "" {
 		url = "https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P"
+		// fmt.Println("Getting Default Plow Info")
 	} else {
 		url = fmt.Sprintf("https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P&id=%s", ID)
+		// fmt.Printf("Getting Plow: %s\n", ID)
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)

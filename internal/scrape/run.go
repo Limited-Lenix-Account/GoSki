@@ -5,16 +5,18 @@ import (
 
 	"traffic.go/internal/merge"
 	"traffic.go/tg"
+	"traffic.go/util"
 )
 
 const REFRESH_DELAY = 15
 
 func RunAndSend() {
+	tree := util.MakeTree()
 
 	bot := tg.StartBot()
 	var messageID int
 
-	Total := merge.Merge()
+	Total := merge.Merge(tree)
 	initBody := tg.FormatMessage(Total)
 
 	messageID = tg.SendMessage(bot, initBody)
@@ -22,7 +24,7 @@ func RunAndSend() {
 	for {
 		if messageID != 0 {
 
-			Total = merge.Merge()
+			Total = merge.Merge(tree)
 			body := tg.FormatMessage(Total)
 
 			tg.EditMessage(bot, body, messageID)

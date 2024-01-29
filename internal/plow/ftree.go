@@ -1,46 +1,37 @@
 package plow
 
 import (
-	"fmt"
-
 	"github.com/dhconnelly/rtreego"
+	"github.com/schollz/progressbar/v3"
 	"traffic.go/util"
 )
 
-func DeterminePlowPos() *[]UsePlow {
+func DeterminePlowPos(tree *rtreego.Rtree) *[]UsePlow {
 
 	plows := ParsePlows()
-	tree := MakeTree()
+
+	plowLen := len(*plows)
+	QueryBar := progressbar.Default(int64(plowLen))
+
 	for i := range *plows {
+		QueryBar.Add(1)
 		if (*plows)[i].Active {
 			(*plows)[i].ClosestMile = FindCloseMarkerSingle((*plows)[i], *tree)
 		}
 
 	}
-	for _, v := range *plows {
-		fmt.Println(v.ID, v.ClosestMile)
-	}
+
 	return plows
 
 }
 
-func MakeTree() *rtreego.Rtree {
-
-	markers := util.ReadMileMarker()
-	tree := rtreego.NewTree(2, 25, 50)
-
-	for i := range markers {
-		tree.Insert(&markers[i])
-	}
-	return tree
-}
-
 func FindCloseMarkerSingle(plow UsePlow, tree rtreego.Rtree) *util.MileMarker {
 
+	// fmt.Printf("Searching Plow: %s\n", plow.ID)
 	snowRect := rtreego.Point{plow.Position.Latitude, plow.Position.Longitude}
 
-	results := tree.NearestNeighbors(1, snowRect)
-	close := results[0].(*util.MileMarker)
+	results := tree.NearestNeighbor(snowRect)
+	close := results.(*util.MileMarker)
 	return close
 
 }

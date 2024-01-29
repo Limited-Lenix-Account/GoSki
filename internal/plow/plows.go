@@ -3,6 +3,7 @@ package plow
 import (
 	"fmt"
 
+	"github.com/schollz/progressbar/v3"
 	"traffic.go/api"
 )
 
@@ -13,11 +14,15 @@ func ParsePlows() *[]UsePlow {
 	apiPlows, _ := api.GetSnowPlowFromAPI("")
 	appPlows, err := api.GetSnowPlowFromApp()
 	if err != nil {
-		fmt.Printf("Error getting APP plows %s\n", err)
+		fmt.Printf("Error getting APP plows: %s\n", err)
 	}
 
+	listLength := len(*appPlows)
+	APIBar := progressbar.Default(int64(listLength))
 	for _, v := range *appPlows {
 		resp, err := api.GetSnowPlowFromAPI(v.ID)
+
+		APIBar.Add(1)
 		if err != nil {
 			fmt.Printf("Error making API req from APP %s\n", err)
 		}

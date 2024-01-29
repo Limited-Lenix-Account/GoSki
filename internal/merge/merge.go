@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dhconnelly/rtreego"
 	"traffic.go/internal/alerts"
 	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
@@ -28,7 +29,7 @@ var VALID_COID = []string{
 	"OpenTMS-TravelTime548989",
 }
 
-func Merge() GrandObject {
+func Merge(tree *rtreego.Rtree) GrandObject {
 
 	var Total GrandObject
 
@@ -40,18 +41,24 @@ func Merge() GrandObject {
 	Vail.Name = "Vail Pass"
 	Berthoud.Name = "Berthoud Pass"
 
+	alr := alerts.ParseAlerts()
+	fmt.Println("Getting Alerts...")
+
 	//Get Valid Alerts
-	LovelandAlerts, VailAlerts, BerthodAlerts := GetValidAlerts()
+	LovelandAlerts, VailAlerts, BerthodAlerts := GetValidAlerts(alr)
 	Loveland.Alerts, Vail.Alerts, Berthoud.Alerts = *LovelandAlerts, *VailAlerts, *BerthodAlerts
 
 	//Check for Road Closures (These two can be consolidated because they make use of the same request)
-	LovelandClosure, VailClosure, BerthoudClosure := GetClosures()
+	LovelandClosure, VailClosure, BerthoudClosure := GetClosures(alr)
 	Loveland.Open, Vail.Open, Berthoud.Open = LovelandClosure, VailClosure, BerthoudClosure
 
-	LovelandPlow, VailPlow, BerthoudPlow := GetSnowPlows()
+	//Getting Plow Information
+	fmt.Println("Getting Plow Information...")
+	LovelandPlow, VailPlow, BerthoudPlow := GetSnowPlows(tree)
 	Loveland.Plows, Vail.Plows, Berthoud.Plows = *LovelandPlow, *VailPlow, *BerthoudPlow
 
 	//Get Traffic
+	fmt.Println("Getting Traffic...")
 	traffic := GetRelivantTraffic()
 
 	//Build Objects
@@ -61,19 +68,15 @@ func Merge() GrandObject {
 
 	Total.Traffic = traffic
 
-	fmt.Println(Vail.Plows)
-
 	return Total
 
 }
 
-func GetValidAlerts() (*[]alerts.UseableAlert, *[]alerts.UseableAlert, *[]alerts.UseableAlert) {
+func GetValidAlerts(alr *[]alerts.UseableAlert) (*[]alerts.UseableAlert, *[]alerts.UseableAlert, *[]alerts.UseableAlert) {
 
 	var LovelandAlerts []alerts.UseableAlert
 	var VailAlerts []alerts.UseableAlert
 	var BerthoudAlerts []alerts.UseableAlert
-
-	alr := alerts.ParseAlerts()
 
 	for _, v := range *alr {
 		if v.Route == "US 6" {
@@ -97,11 +100,9 @@ func GetValidAlerts() (*[]alerts.UseableAlert, *[]alerts.UseableAlert, *[]alerts
 	return &LovelandAlerts, &VailAlerts, &BerthoudAlerts
 }
 
-func GetClosures() (bool, bool, bool) {
+func GetClosures(alr *[]alerts.UseableAlert) (bool, bool, bool) {
 
 	var Loveland, Vail, Berthoud bool
-
-	alr := alerts.ParseAlerts()
 
 	for _, v := range *alr {
 		// fmt.Println(v)
@@ -145,9 +146,9 @@ func GetClosures() (bool, bool, bool) {
 
 }
 
-func GetSnowPlows() (*[]plow.UsePlow, *[]plow.UsePlow, *[]plow.UsePlow) {
+func GetSnowPlows(tree *rtreego.Rtree) (*[]plow.UsePlow, *[]plow.UsePlow, *[]plow.UsePlow) {
 	var LovelandPlow, VailPlow, BerthoudPlow []plow.UsePlow
-	plows := plow.DeterminePlowPos()
+	plows := plow.DeterminePlowPos(tree)
 
 	for _, v := range *plows {
 		if v.ClosestMile != nil {
@@ -158,7 +159,7 @@ func GetSnowPlows() (*[]plow.UsePlow, *[]plow.UsePlow, *[]plow.UsePlow) {
 				}
 
 			} else if v.ClosestMile.Route == "070A" {
-				fmt.Println(v.ID, v.ClosestMile.Marker)
+				// fmt.Println(v.ID, v.ClosestMile.Marker)
 				if v.ClosestMile.Marker > VAIL_PASS_BEGIN && v.ClosestMile.Marker < VAIL_PASS_END {
 					VailPlow = append(VailPlow, v)
 				}
