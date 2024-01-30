@@ -50,4 +50,5 @@ func EditMessage(bot *tg.BotAPI, editMessage string, messageID int) {
 	if err != nil {
 		log.Panic(err)
 	}
+	fmt.Println("Message Edited!")
 }
