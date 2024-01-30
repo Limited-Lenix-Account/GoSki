@@ -2,6 +2,7 @@ package plow
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/schollz/progressbar/v3"
 	"traffic.go/api"
@@ -11,23 +12,42 @@ func ParsePlows() *[]UsePlow {
 
 	var UseablePlows []UsePlow
 
+	var wg sync.WaitGroup
+
 	apiPlows, _ := api.GetSnowPlowFromAPI("")
 	appPlows, err := api.GetSnowPlowFromApp()
 	if err != nil {
 		fmt.Printf("Error getting APP plows: %s\n", err)
 	}
-
 	listLength := len(*appPlows)
-	APIBar := progressbar.Default(int64(listLength))
-	for _, v := range *appPlows {
-		resp, err := api.GetSnowPlowFromAPI(v.ID)
 
-		APIBar.Add(1)
-		if err != nil {
-			fmt.Printf("Error making API req from APP %s\n", err)
-		}
-		apiPlows.Features = append(apiPlows.Features, resp.Features...)
+	wg.Add(listLength)
+	APIBar := progressbar.Default(int64(listLength))
+	for i := 0; i < listLength; i++ {
+		go func(index int) {
+			defer wg.Done()
+
+			res, err := api.GetSnowPlowFromAPI((*appPlows)[index].ID)
+			if err != nil {
+				fmt.Printf("Error making API req from APP %s\n", err)
+			}
+
+			APIBar.Add(1)
+			apiPlows.Features = append(apiPlows.Features, res.Features...)
+
+		}(i)
 	}
+
+	wg.Wait()
+
+	// for _, v := range *appPlows {
+	// 	resp, err := api.GetSnowPlowFromAPI(v.ID)
+	// 	APIBar.Add(1)
+	// 	if err != nil {
+	// 		fmt.Printf("Error making API req from APP %s\n", err)
+	// 	}
+	// 	apiPlows.Features = append(apiPlows.Features, resp.Features...)
+	// }
 
 	if err != nil {
 		fmt.Printf("Error making snowplow req %s", err)
