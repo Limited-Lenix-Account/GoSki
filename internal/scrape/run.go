@@ -8,7 +8,7 @@ import (
 	"traffic.go/util"
 )
 
-const REFRESH_DELAY = 15
+const REFRESH_DELAY = 15 //In Seconds
 
 func RunAndSend() {
 	tree := util.MakeTree()
@@ -22,6 +22,7 @@ func RunAndSend() {
 	messageID = tg.SendMessage(bot, initBody)
 	time.Sleep(REFRESH_DELAY * time.Second)
 	for {
+
 		if messageID != 0 {
 
 			Total = merge.Merge(tree)

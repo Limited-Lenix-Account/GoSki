@@ -103,6 +103,9 @@ func GetValidAlerts(alr *[]alerts.UseableAlert) (*[]alerts.UseableAlert, *[]aler
 func GetClosures(alr *[]alerts.UseableAlert) (bool, bool, bool) {
 
 	var Loveland, Vail, Berthoud bool
+	Berthoud = true
+	Vail = true
+	Loveland = true
 
 	for _, v := range *alr {
 		// fmt.Println(v)
@@ -110,32 +113,20 @@ func GetClosures(alr *[]alerts.UseableAlert) (bool, bool, bool) {
 			if v.StartMile > LOVELAND_PASS_BEGIN && v.EndMile < LOVELAND_PASS_END {
 				if v.Reason == "Road Closed" {
 					Loveland = false
-				} else {
-					Loveland = true
 				}
-			} else {
-				Loveland = true
 			}
 
 		} else if v.Route == "I-70" {
 			if v.StartMile > VAIL_PASS_BEGIN && v.EndMile < VAIL_PASS_END {
 				if v.Reason == "Road Closed" {
 					Vail = false
-				} else {
-					Vail = true
 				}
-			} else {
-				Vail = true
 			}
 		} else if v.Route == "US 40" {
 			if v.StartMile > BERTHOUD_PASS_BEGIN && v.EndMile < BERTHOUD_PASS_END {
 				if v.Reason == "Road Closed" {
 					Berthoud = false
-				} else {
-					Berthoud = true
 				}
-			} else {
-				Berthoud = true
 			}
 		}
 

@@ -40,15 +40,6 @@ func ParsePlows() *[]UsePlow {
 
 	wg.Wait()
 
-	// for _, v := range *appPlows {
-	// 	resp, err := api.GetSnowPlowFromAPI(v.ID)
-	// 	APIBar.Add(1)
-	// 	if err != nil {
-	// 		fmt.Printf("Error making API req from APP %s\n", err)
-	// 	}
-	// 	apiPlows.Features = append(apiPlows.Features, resp.Features...)
-	// }
-
 	if err != nil {
 		fmt.Printf("Error making snowplow req %s", err)
 	}

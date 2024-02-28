@@ -13,11 +13,9 @@ func GetSnowPlowFromAPI(ID string) (*SnowPlow, error) {
 	var url string
 
 	if ID == "" {
-		url = "https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P"
-		// fmt.Println("Getting Default Plow Info")
+		url = fmt.Sprintf("https://data.cotrip.org/api/v1/snowPlows?apiKey=%s", API_KEY)
 	} else {
-		url = fmt.Sprintf("https://data.cotrip.org/api/v1/snowPlows?apiKey=0JW047K-MNCMYS3-G6R3ZDS-4BHGC0P&id=%s", ID)
-		// fmt.Printf("Getting Plow: %s\n", ID)
+		url = fmt.Sprintf("https://data.cotrip.org/api/v1/snowPlows?apiKey=%s&id=%s", API_KEY, ID)
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
