@@ -21,8 +21,8 @@ func RunAndSend() {
 
 	messageID = tg.SendMessage(bot, initBody)
 	time.Sleep(REFRESH_DELAY * time.Second)
-	for {
 
+	for {
 		if messageID != 0 {
 
 			Total = merge.Merge(tree)

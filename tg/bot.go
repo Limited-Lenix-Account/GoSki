@@ -8,12 +8,11 @@ import (
 )
 
 const (
-	chatID = int64(1585424137)
-	botKey = "6582079213:AAE43uCNLr2pUWIgBB9zhYqlOQCbwFzpLEk"
+	chatID = int64(11111) // telegram chat channel ID here
+	botKey = ""           // telegram bot key here
 )
 
 func StartBot() *tg.BotAPI {
-
 	fmt.Println("Starting TG Bot...")
 
 	bot, err := tg.NewBotAPI(botKey)

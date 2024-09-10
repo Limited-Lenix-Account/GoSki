@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	fmt.Println("Starting TrafficAIO")
+	fmt.Println("Starting GoSki")
 	scrape.RunAndSend()
 
 }
