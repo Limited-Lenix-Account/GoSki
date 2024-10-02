@@ -18,7 +18,6 @@ const (
 	VAIL_PASS_BEGIN = 170
 	VAIL_PASS_END   = 197
 
-	//Technically all of empire but whatever bruh
 	BERTHOUD_PASS_BEGIN = 230
 	BERTHOUD_PASS_END   = 260
 )
