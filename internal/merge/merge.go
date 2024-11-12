@@ -90,8 +90,6 @@ func GetValidAlerts(alr *[]alerts.UseableAlert) (*[]alerts.UseableAlert, *[]aler
 
 		} else if v.Route == "US 40" {
 			if v.StartMile > BERTHOUD_PASS_BEGIN && v.EndMile < BERTHOUD_PASS_END {
-
-				fmt.Println(v.Reason)
 				BerthoudAlerts = append(BerthoudAlerts, v)
 			}
 		}
