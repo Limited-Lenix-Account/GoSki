@@ -173,3 +173,54 @@ type AppSnowPlow []struct {
 		LinearReference         float64 `json:"linearReference"`
 	} `json:"statuses"`
 }
+
+type IncidentsResp struct {
+	Type     string `json:"type"`
+	Features []struct {
+		Type     string `json:"type"`
+		Geometry struct {
+			Srid        int         `json:"srid"`
+			Type        string      `json:"type"`
+			Coordinates interface{} `json:"coordinates"`
+		} `json:"geometry"`
+		Properties struct {
+			Injuries                   int       `json:"injuries"`
+			StartMarker                float64   `json:"startMarker"`
+			Type                       string    `json:"type"`
+			RouteName                  string    `json:"routeName"`
+			IsOversizedLoadsProhibited bool      `json:"isOversizedLoadsProhibited"`
+			LastUpdated                time.Time `json:"lastUpdated"`
+			EndMarker                  float64   `json:"endMarker"`
+			ResponseSigns              []struct {
+				ID      string `json:"id"`
+				Message string `json:"message"`
+			} `json:"responseSigns"`
+			StartTime                  time.Time `json:"startTime"`
+			ID                         string    `json:"id"`
+			TravelerInformationMessage string    `json:"travelerInformationMessage"`
+			PatrolRoute                string    `json:"patrolRoute"`
+			ResponseLevel              string    `json:"responseLevel"`
+			OwningGroup                string    `json:"owningGroup"`
+			Jurisdictions              []string  `json:"jurisdictions"`
+			Direction                  string    `json:"direction"`
+			Severity                   string    `json:"severity"`
+			LastUpdatedBy              string    `json:"lastUpdatedBy"`
+			AdditionalImpacts          []string  `json:"additionalImpacts"`
+			LaneImpacts                []struct {
+				Direction       string   `json:"direction"`
+				LaneCount       int      `json:"laneCount"`
+				LaneClosures    string   `json:"laneClosures"`
+				ClosedLaneTypes []string `json:"closedLaneTypes"`
+			} `json:"laneImpacts"`
+			VehiclesInvolved   int    `json:"vehiclesInvolved"`
+			Fatalities         int    `json:"fatalities"`
+			HasRampRestriction bool   `json:"hasRampRestriction"`
+			DetectionSource    string `json:"detectionSource"`
+			Region             string `json:"region"`
+			Category           string `json:"category"`
+			Status             string `json:"status"`
+		} `json:"properties"`
+		Attributes struct {
+		} `json:"attributes"`
+	} `json:"features"`
+}
