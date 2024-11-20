@@ -25,13 +25,18 @@ func DeterminePlowPos(tree *rtreego.Rtree) *[]UsePlow {
 
 }
 
+// TODO: this function should be changed to use just a pair of coordinates rather than the Plow Object
+// i'll fix this later probably but for now i'm gonna make a new function -------------
 func FindCloseMarkerSingle(plow UsePlow, tree rtreego.Rtree) *util.MileMarker {
-
-	// fmt.Printf("Searching Plow: %s\n", plow.ID)
 	snowRect := rtreego.Point{plow.Position.Latitude, plow.Position.Longitude}
-
 	results := tree.NearestNeighbor(snowRect)
 	close := results.(*util.MileMarker)
 	return close
 
+}
+
+func FindClosestMileFromPoint(point rtreego.Point, tree *rtreego.Rtree) *util.MileMarker {
+	results := tree.NearestNeighbor(point)
+	close := results.(*util.MileMarker)
+	return close
 }
