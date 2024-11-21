@@ -1,6 +1,7 @@
 package incidents
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/dhconnelly/rtreego"
@@ -29,7 +30,6 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 				for _, c := range geoTypes {
 					singlePoint = append(singlePoint, c.(float64))
 				}
-
 				// convert coordinates to mile marker object
 				usable.SinglePoint = rtreego.Point{singlePoint[1], singlePoint[0]}
 				usable.SingleMile = plow.FindClosestMileFromPoint(usable.SinglePoint, tree)
@@ -50,10 +50,63 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 			default:
 				fmt.Println("Something else!", geoTypes)
 			}
+			usable.Severity = v.Properties.Severity
+			usable.IncidentType = v.Properties.Type
+			for _, v := range v.Properties.LaneImpacts {
+				if v.LaneClosures != "0" {
+					usable.LanesClosed.LanesStr = closureToString(v.LaneClosures, v.LaneCount)
+					usable.LanesClosed.Direction = v.Direction
+					break
+				}
+			}
 
 			incidents = append(incidents, usable)
 		}
 	}
 
 	return &incidents, nil
+}
+
+func closureToString(hexStr string, laneCnt int) string {
+
+	// change case for hexStr 1 and laneCnt 1
+	var finalString string
+
+	// fmt.Println(hexStr, laneCnt)
+	hex, err := hex.DecodeString(hexStr)
+	if err != nil {
+		// fmt.Println(hexStr)
+		return ""
+	}
+	var binaryStr string
+	for _, b := range hex {
+		binaryStr += fmt.Sprintf("%08b", b)
+	}
+	fmt.Println(binaryStr)
+
+	for i := 1; i <= laneCnt; i++ {
+		// fmt.Print(i)
+		if i == 1 {
+			if binaryStr[0] == '1' {
+				finalString += "x|"
+			} else {
+				finalString += " |"
+			}
+		}
+
+		if binaryStr[i] == '1' {
+			finalString += " X |"
+		} else {
+			finalString += "   |"
+		}
+
+		if i+1 == laneCnt+1 {
+			if binaryStr[i] == '1' {
+				finalString += "x"
+			}
+		}
+
+	}
+
+	return string(finalString)
 }

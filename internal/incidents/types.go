@@ -7,6 +7,8 @@ import (
 
 type UsableIncident struct {
 	IncidentType string
+	Severity     string
+	LanesClosed  LaneImpacts
 
 	Route          string
 	Direction      string
@@ -20,4 +22,9 @@ type UsableIncident struct {
 	SingleMileStr string
 	SinglePoint   rtreego.Point
 	SingleMile    *util.MileMarker
+}
+
+type LaneImpacts struct {
+	Direction string
+	LanesStr  string // 4 lane example -> | | |X|X|
 }
