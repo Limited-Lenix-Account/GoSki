@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"traffic.go/internal/incidents"
 	"traffic.go/internal/merge"
 	"traffic.go/tg"
 	"traffic.go/util"
@@ -15,7 +14,6 @@ const REFRESH_DELAY = 15 //In Seconds
 func RunAndSend() {
 	fmt.Println("Running and sending")
 	tree := util.MakeTree()
-	incidents.ParseIndidents(tree)
 
 	bot := tg.StartBot()
 	var messageID int

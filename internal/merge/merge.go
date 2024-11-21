@@ -7,6 +7,7 @@ import (
 
 	"github.com/dhconnelly/rtreego"
 	"traffic.go/internal/alerts"
+	"traffic.go/internal/incidents"
 	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
 )
@@ -59,6 +60,13 @@ func Merge(tree *rtreego.Rtree) GrandObject {
 	//Get Traffic
 	fmt.Println("Getting Traffic...")
 	traffic := GetRelivantTraffic()
+	// get incidents
+	fmt.Println("Getting incidents...")
+
+	incident, err := incidents.ParseIndidents(tree)
+	if err != nil {
+		fmt.Println("error getting incidents: %w", err)
+	}
 
 	//Build Objects
 	Total.LovelandPass = &Loveland
@@ -66,6 +74,7 @@ func Merge(tree *rtreego.Rtree) GrandObject {
 	Total.BerthodPass = &Berthoud
 
 	Total.Traffic = traffic
+	Total.Incidents = incident
 
 	return Total
 

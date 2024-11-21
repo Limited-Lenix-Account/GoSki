@@ -2,6 +2,7 @@ package merge
 
 import (
 	"traffic.go/internal/alerts"
+	"traffic.go/internal/incidents"
 	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
 )
@@ -11,7 +12,8 @@ type GrandObject struct {
 	VailPass     *PassStatus
 	BerthodPass  *PassStatus
 
-	Traffic *[]traffic.UseableTraffic
+	Traffic   *[]traffic.UseableTraffic
+	Incidents *[]incidents.UsableIncident
 }
 
 type PassStatus struct {
