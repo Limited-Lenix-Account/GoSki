@@ -82,7 +82,7 @@ func closureToString(hexStr string, laneCnt int) string {
 	for _, b := range hex {
 		binaryStr += fmt.Sprintf("%08b", b)
 	}
-	fmt.Println(binaryStr)
+	// fmt.Println(binaryStr)
 
 	for i := 1; i <= laneCnt; i++ {
 		// fmt.Print(i)
