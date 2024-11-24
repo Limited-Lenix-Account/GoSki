@@ -21,6 +21,9 @@ const (
 
 	BERTHOUD_PASS_BEGIN = 230
 	BERTHOUD_PASS_END   = 260
+
+	I70_BEING = 100
+	I70_END   = 300
 )
 
 var VALID_COID = []string{
@@ -43,10 +46,16 @@ func Merge(tree *rtreego.Rtree) GrandObject {
 
 	alr := alerts.ParseAlerts()
 	fmt.Println("Getting Alerts...")
+	incident, err := incidents.ParseIndidents(tree)
+	if err != nil {
+		fmt.Println("error getting incidents: %w", err)
+	}
 
 	//Get Valid Alerts
 	LovelandAlerts, VailAlerts, BerthodAlerts := GetValidAlerts(alr)
 	Loveland.Alerts, Vail.Alerts, Berthoud.Alerts = *LovelandAlerts, *VailAlerts, *BerthodAlerts
+
+	IncidentAlerts := GetValidIncidents(incident)
 
 	//Check for Road Closures (These two can be consolidated because they make use of the same request)
 	LovelandClosure, VailClosure, BerthoudClosure := GetClosures(alr)
@@ -60,21 +69,18 @@ func Merge(tree *rtreego.Rtree) GrandObject {
 	//Get Traffic
 	fmt.Println("Getting Traffic...")
 	traffic := GetRelivantTraffic()
-	// get incidents
+	// Get Incidents
 	fmt.Println("Getting incidents...")
-
-	incident, err := incidents.ParseIndidents(tree)
-	if err != nil {
-		fmt.Println("error getting incidents: %w", err)
-	}
 
 	//Build Objects
 	Total.LovelandPass = &Loveland
 	Total.VailPass = &Vail
 	Total.BerthodPass = &Berthoud
 
+	// Incidents will cover like all of I70 and othe relivant roads but doesn't need to be in the same section
+	// I don't think
 	Total.Traffic = traffic
-	Total.Incidents = incident
+	Total.Incidents = IncidentAlerts
 
 	return Total
 
@@ -104,6 +110,10 @@ func GetValidAlerts(alr *[]alerts.UseableAlert) (*[]alerts.UseableAlert, *[]aler
 		}
 	}
 	return &LovelandAlerts, &VailAlerts, &BerthoudAlerts
+}
+
+func GetValidIncidents(inc *[]incidents.UsableIncident) *[]incidents.UsableIncident {
+	return inc
 }
 
 func GetClosures(alr *[]alerts.UseableAlert) (bool, bool, bool) {
