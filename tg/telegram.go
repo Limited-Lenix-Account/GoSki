@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"traffic.go/internal/alerts"
+	"traffic.go/internal/incidents"
 	"traffic.go/internal/merge"
 	"traffic.go/internal/plow"
 	"traffic.go/internal/traffic"
@@ -28,6 +29,9 @@ func FormatMessage(Total merge.GrandObject) string {
 	travelList := TrafficToString(*Total.Traffic)
 	travelString := strings.Join(travelList, "\n")
 
+	incidentList := IncidentToStr(*Total.Incidents)
+	incidentString := strings.Join(incidentList, "\n")
+
 	finalMessage := []string{
 		PassOpen(Total.LovelandPass.Name, Total.LovelandPass.Open),
 		lPlow,
@@ -38,6 +42,8 @@ func FormatMessage(Total merge.GrandObject) string {
 		PassOpen(Total.BerthodPass.Name, Total.BerthodPass.Open),
 		bPlow,
 		bStr,
+		"\n*__Highway Incidents__*\n",
+		incidentString,
 		"\n*__Some Common Travel Times__*\n",
 		travelString,
 	}
@@ -46,6 +52,29 @@ func FormatMessage(Total merge.GrandObject) string {
 
 	return testString
 
+}
+
+func IncidentToStr(inc []incidents.UsableIncident) []string {
+	var incList []string
+
+	if len(inc) > 0 {
+		incList = append(incList, "*Incidents Found\\!* ⚠️")
+		for _, v := range inc {
+			incLine := fmt.Sprintf("\n*Reason: _%s_ * \nRoute: %s", RouteToString(v.IncidentType), RouteToString(v.Route))
+			incList = append(incList, incLine)
+
+			if v.LanesClosed.LanesStr != "" {
+				incStr := RouteToString(v.LanesClosed.LanesStr)
+				incList = append(incList, incStr)
+			}
+
+		}
+
+	} else {
+		incList = append(incList, "*No Incidents Found* *\n")
+	}
+
+	return incList
 }
 
 func AlertToStr(alr []alerts.UseableAlert) []string {
@@ -98,6 +127,8 @@ func TrafficToString(traff []traffic.UseableTraffic) []string {
 
 func RouteToString(route string) string {
 	parsedRoute := strings.Replace(route, "-", "\\-", -1)
+	parsedRoute = strings.Replace(parsedRoute, "+", "\\+", -1)
+	parsedRoute = strings.Replace(parsedRoute, "|", "\\|", -1)
 	return parsedRoute
 }
 
