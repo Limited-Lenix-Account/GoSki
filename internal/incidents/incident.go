@@ -20,6 +20,12 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 
 	// convert Geometry from interface{} to []float64 or [][]float64
 	for _, v := range incResp.Features {
+
+		// ignores the multipolygon ones
+		if v.Geometry.Type == "MultiPolygon" {
+			continue
+		}
+
 		var usable UsableIncident
 		var singlePoint []float64
 		var multiPoint [][]float64
@@ -52,6 +58,7 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 			}
 			usable.Severity = v.Properties.Severity
 			usable.IncidentType = v.Properties.Type
+			usable.Route = v.Properties.RouteName
 			for _, v := range v.Properties.LaneImpacts {
 				if v.LaneClosures != "0" {
 					usable.LanesClosed.LanesStr = closureToString(v.LaneClosures, v.LaneCount)
@@ -69,23 +76,31 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 
 func closureToString(hexStr string, laneCnt int) string {
 
+	// if hexStr == "0"
+
+	var binaryStr string
 	// change case for hexStr 1 and laneCnt 1
+	if hexStr == "1" {
+		hexStr = "0001"
+	}
+	if hexStr == "0" {
+		hexStr = "0000"
+	}
+
 	var finalString string
 
 	// fmt.Println(hexStr, laneCnt)
 	hex, err := hex.DecodeString(hexStr)
 	if err != nil {
-		// fmt.Println(hexStr)
 		return ""
 	}
-	var binaryStr string
+
 	for _, b := range hex {
 		binaryStr += fmt.Sprintf("%08b", b)
 	}
-	// fmt.Println(binaryStr)
 
+	// fmt.Println(binaryStr)
 	for i := 1; i <= laneCnt; i++ {
-		// fmt.Print(i)
 		if i == 1 {
 			if binaryStr[0] == '1' {
 				finalString += "x|"
@@ -101,12 +116,14 @@ func closureToString(hexStr string, laneCnt int) string {
 		}
 
 		if i+1 == laneCnt+1 {
-			if binaryStr[i] == '1' {
+			if binaryStr[len(binaryStr)-1] == '1' {
 				finalString += "x"
 			}
 		}
 
 	}
+
+	fmt.Println(finalString)
 
 	return string(finalString)
 }
