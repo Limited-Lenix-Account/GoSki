@@ -44,7 +44,7 @@ func Merge(tree *rtreego.Rtree) GrandObject {
 	Vail.Name = "Vail Pass"
 	Berthoud.Name = "Berthoud Pass"
 
-	alr := alerts.ParseAlerts()
+	alr := alerts.ParseAlerts(tree)
 	fmt.Println("Getting Alerts...")
 	incident, err := incidents.ParseIndidents(tree)
 	if err != nil {

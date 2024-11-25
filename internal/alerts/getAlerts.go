@@ -5,11 +5,14 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/dhconnelly/rtreego"
 	"traffic.go/api"
+	"traffic.go/internal/plow"
+	"traffic.go/util"
 )
 
-func ParseAlerts() *[]UseableAlert {
-
+func ParseAlerts(tree *rtreego.Rtree) *[]UseableAlert {
+	// var point []float64
 	var alertList []UseableAlert
 
 	alertRes, err := api.GetAlerts()
@@ -17,24 +20,44 @@ func ParseAlerts() *[]UseableAlert {
 		fmt.Printf("Error getting Alert Res %s", err)
 	}
 	for _, alert := range *alertRes {
-
+		var secPoint *util.MileMarker
+		var primPoint *util.MileMarker
 		parseAlert := UseableAlert{}
 
 		if alert.AgencyAttribution.AgencyName == "Waze" {
 			continue
 		} else {
-			miles := GetMileIndicators(alert.EventDescription.DescriptionFull)
-			switch len(miles) {
-			case 0:
-				continue
-			case 1:
-				parseAlert.SingleMile = miles[0]
-			case 2:
-				parseAlert.StartMile = miles[0]
-				parseAlert.EndMile = miles[1]
-			default:
-				fmt.Println("Unknown Length of Mile List!")
+
+			pp := rtreego.Point{alert.Location.PrimaryPoint.Lat, alert.Location.PrimaryPoint.Lon}
+			primPoint = plow.FindClosestMileFromPoint(pp, tree)
+
+			parseAlert.SingleMile = float64(primPoint.Marker)
+			if alert.Location.SecondaryPoint.Lat != 0 {
+
+				sp := rtreego.Point{alert.Location.SecondaryPoint.Lat, alert.Location.SecondaryPoint.Lon}
+				secPoint = plow.FindClosestMileFromPoint(sp, tree)
+				parseAlert.StartMile = float64(primPoint.Marker)
+				parseAlert.EndMile = float64(secPoint.Marker)
 			}
+
+			// if !strings.Contains(alert.EventDescription.DescriptionHeader, "Road closed.") {
+			// 	continue
+			// }
+			// fmt.Println(alert.EventDescription.DescriptionHeader)
+			// fmt.Println(miles)
+			// fmt.Println(primPoint)
+			// fmt.Println(secPoint)
+			// switch len(miles) {
+			// case 0:
+			// 	continue
+			// case 1:
+			// 	parseAlert.SingleMile = miles[0]
+			// case 2:
+			// 	parseAlert.StartMile = miles[0]
+			// 	parseAlert.EndMile = miles[1]
+			// default:
+			// 	fmt.Println("Unknown Length of Mile List!")
+			// }
 
 			parseAlert.ID = alert.ID
 			parseAlert.Route = alert.Location.RouteDesignator
