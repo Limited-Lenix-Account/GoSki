@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/csv"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 
@@ -40,8 +41,9 @@ func ReadMileMarker() []MileMarker {
 		coord := ParseCoords(record[0])
 		point := rtreego.Point{coord.Lat, coord.Long}.ToRect(0.01)
 
-		marker, _ := strconv.Atoi(record[7])
+		f, _ := strconv.ParseFloat(record[7], 64)
 
+		marker := int(math.Round(f))
 		t := MileMarker{
 			Route:       record[5],
 			Marker:      marker,
