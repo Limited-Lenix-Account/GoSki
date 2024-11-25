@@ -3,6 +3,7 @@ package incidents
 import (
 	"encoding/hex"
 	"fmt"
+	"strings"
 
 	"github.com/dhconnelly/rtreego"
 	"traffic.go/api"
@@ -23,6 +24,10 @@ func ParseIndidents(tree *rtreego.Rtree) (*[]UsableIncident, error) {
 
 		// ignores the multipolygon ones
 		if v.Geometry.Type == "MultiPolygon" {
+			continue
+		}
+
+		if strings.Contains(v.Properties.Type, "Law Code") {
 			continue
 		}
 
